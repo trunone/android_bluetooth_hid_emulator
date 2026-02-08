@@ -12,7 +12,7 @@ class HidReportTest {
         val leftButton = true
         val rightButton = false
 
-        val expected = byteArrayOf(1, 10, -5, 0)
+        val expected = byteArrayOf(1, 10, -5)
         val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton)
 
         assertArrayEquals(expected, actual)
@@ -25,7 +25,7 @@ class HidReportTest {
         val leftButton = true
         val rightButton = true
 
-        val expected = byteArrayOf(3, 0, 0, 0)
+        val expected = byteArrayOf(3, 0, 0)
         val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton)
 
         assertArrayEquals(expected, actual)

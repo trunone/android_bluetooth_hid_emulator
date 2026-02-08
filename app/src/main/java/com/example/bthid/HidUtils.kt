@@ -6,11 +6,10 @@ object HidUtils {
         if (leftButton) buttons = buttons or 1
         if (rightButton) buttons = buttons or 2
 
-        val report = ByteArray(4)
+        val report = ByteArray(3)
         report[0] = buttons.toByte()
         report[1] = dx.toByte()
         report[2] = dy.toByte()
-        report[3] = 0 // Wheel
         return report
     }
 
