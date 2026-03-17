@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Bluetooth HID Emulator</string>
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="no_devices_found">No paired devices found.</string>
+    <string name="enable_bluetooth">Enable Bluetooth</string>
+    <string name="permission_rationale">This app needs Bluetooth and Location permissions to function.</string>
+    <string name="status_connected">Connected</string>
+    <string name="status_disconnected">Disconnected</string>
+    <string name="mouse_sensitivity">Mouse Sensitivity</string>
+    <string name="keyboard_input">Keyboard Input</string>
+</resources>
