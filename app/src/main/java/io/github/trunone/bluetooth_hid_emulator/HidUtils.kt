@@ -1,4 +1,4 @@
-package com.example.bthid
+package io.github.trunone.bluetooth_hid_emulator
 
 object HidUtils {
     fun createMouseReport(dx: Int, dy: Int, leftButton: Boolean, rightButton: Boolean): ByteArray {

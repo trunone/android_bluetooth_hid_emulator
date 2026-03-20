@@ -1,4 +1,4 @@
-package com.example.bthid
+package io.github.trunone.bluetooth_hid_emulator
 
 import android.content.ComponentName
 import android.content.Context
@@ -14,7 +14,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.bthid.databinding.ActivityMouseKeyboardBinding
+import io.github.trunone.bluetooth_hid_emulator.databinding.ActivityMouseKeyboardBinding
 
 class MouseKeyboardActivity : AppCompatActivity() {
 

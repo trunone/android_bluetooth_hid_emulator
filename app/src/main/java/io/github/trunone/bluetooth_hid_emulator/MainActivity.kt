@@ -1,4 +1,4 @@
-package com.example.bthid
+package io.github.trunone.bluetooth_hid_emulator
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.bthid.databinding.ActivityMainBinding
+import io.github.trunone.bluetooth_hid_emulator.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 

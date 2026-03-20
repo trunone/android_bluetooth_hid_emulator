@@ -1,4 +1,4 @@
-package com.example.bthid
+package io.github.trunone.bluetooth_hid_emulator
 
 import android.bluetooth.BluetoothDevice
 import android.view.LayoutInflater
