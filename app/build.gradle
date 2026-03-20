@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.bthid'
+    namespace 'io.github.trunone.bluetooth_hid_emulator'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.bthid"
+        applicationId "io.github.trunone.bluetooth_hid_emulator"
         minSdk 28
         targetSdk 34
         versionCode 1
