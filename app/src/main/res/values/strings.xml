@@ -9,4 +9,9 @@
     <string name="status_disconnected">Disconnected</string>
     <string name="mouse_sensitivity">Mouse Sensitivity</string>
     <string name="keyboard_input">Keyboard Input</string>
+    <string name="make_discoverable">Make Discoverable</string>
+    <string name="left_click">Left Click</string>
+    <string name="right_click">Right Click</string>
+    <string name="send_text">Send Text</string>
+    <string name="permission_denied">Permission Denied</string>
 </resources>
