@@ -26,11 +26,12 @@ class DeviceAdapter(
     @android.annotation.SuppressLint("MissingPermission")
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val device = devices[position]
+        val context = holder.itemView.context
         try {
             holder.name.text = device.name ?: "Unknown Device"
             holder.address.text = device.address
         } catch (e: SecurityException) {
-            holder.name.text = "Permission Denied"
+            holder.name.text = context.getString(R.string.permission_denied)
             holder.address.text = device.address
         }
         holder.itemView.setOnClickListener { onClick(device) }
