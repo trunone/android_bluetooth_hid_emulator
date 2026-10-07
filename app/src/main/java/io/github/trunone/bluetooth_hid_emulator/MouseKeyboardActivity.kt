@@ -80,9 +80,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private var isClearingText = false
 
     private fun setupTouchpad() {
-        binding.viewTouchpad.setOnTouchListener { _, event ->
+        binding.viewTouchpad.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    view.performClick()
                     lastX = event.x
                     lastY = event.y
                     true
@@ -112,9 +113,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private var rightButtonDown = false
 
     private fun setupButtons() {
-        binding.btnLeftClick.setOnTouchListener { _, event ->
+        binding.btnLeftClick.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    view.performClick()
                     leftButtonDown = true
                     bluetoothService?.sendMouseReport(0, 0, leftButtonDown, rightButtonDown)
                     true
@@ -128,9 +130,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnRightClick.setOnTouchListener { _, event ->
+        binding.btnRightClick.setOnTouchListener { view, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    view.performClick()
                     rightButtonDown = true
                     bluetoothService?.sendMouseReport(0, 0, leftButtonDown, rightButtonDown)
                     true
@@ -146,6 +149,19 @@ class MouseKeyboardActivity : AppCompatActivity() {
     }
 
     private fun setupKeyboard() {
+        binding.etKeyboardInput.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN) {
+                if (keyCode == KeyEvent.KEYCODE_DEL) {
+                    sendKey('\u0008')
+                    return@setOnKeyListener true
+                } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                    sendKey('\n')
+                    return@setOnKeyListener true
+                }
+            }
+            false
+        }
+
         binding.etKeyboardInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
@@ -191,6 +207,8 @@ class MouseKeyboardActivity : AppCompatActivity() {
             '\n' -> keycode = 0x28
             '\u0008' -> keycode = 0x2A // Backspace
             '\t' -> keycode = 0x2B // Tab
+            '`' -> keycode = 0x35
+            '~' -> { keycode = 0x35; modifier = 0x02 }
             '!' -> { keycode = 0x1E; modifier = 0x02 }
             '@' -> { keycode = 0x1F; modifier = 0x02 }
             '#' -> { keycode = 0x20; modifier = 0x02 }

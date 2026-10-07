@@ -148,6 +148,7 @@ class BluetoothHidService : Service() {
         adapter.getProfileProxy(this, serviceListener, BluetoothProfile.HID_DEVICE)
     }
 
+    @SuppressLint("MissingPermission")
     override fun onDestroy() {
         isServiceDestroyed = true
         super.onDestroy()
@@ -171,7 +172,7 @@ class BluetoothHidService : Service() {
             "Bluetooth HID",
             "Android HID Emulator",
             "Android",
-            0x00.toByte(), // Subclass 0 can sometimes be more compatible
+            0xC0.toByte(), // Subclass 0xC0 for Combo Keyboard/Mouse
             COMPOSITE_REPORT_DESC
         )
 

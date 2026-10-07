@@ -38,14 +38,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Left Click" />
+            android:text="@string/left_click" />
 
         <Button
             android:id="@+id/btn_right_click"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Right Click" />
+            android:text="@string/right_click" />
     </LinearLayout>
 
     <EditText
@@ -53,13 +53,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/keyboard_input"
+        android:inputType="text"
+        android:importantForAutofill="no"
         android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/btn_send_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send Text"
+        android:text="@string/send_text"
         android:visibility="gone"/>
 
 </LinearLayout>
