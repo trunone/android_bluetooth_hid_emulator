@@ -52,6 +52,7 @@ class MouseKeyboardActivity : AppCompatActivity() {
         updateDeviceText(null)
 
         setupTouchpad()
+        setupScrollStrip()
         setupButtons()
         setupKeyboard()
 
@@ -164,7 +165,17 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private var lastScrollY = 0f
     private var isScrolling = false
 
+    private var accumulatedVScroll = 0f
+    private var accumulatedHScroll = 0f
+
+    private var lastStripY = 0f
+    private var accumulatedStripVScroll = 0f
+
     private var isClearingText = false
+
+    companion object {
+        private const val SCROLL_SENSITIVITY = 15f // pixels per scroll wheel notch
+    }
 
     private fun setupTouchpad() {
         binding.viewTouchpad.setOnTouchListener { view, event ->
@@ -174,6 +185,8 @@ class MouseKeyboardActivity : AppCompatActivity() {
                     lastX = event.x
                     lastY = event.y
                     isScrolling = false
+                    accumulatedVScroll = 0f
+                    accumulatedHScroll = 0f
                     true
                 }
                 MotionEvent.ACTION_POINTER_DOWN -> {
@@ -181,6 +194,8 @@ class MouseKeyboardActivity : AppCompatActivity() {
                         isScrolling = true
                         lastScrollX = (event.getX(0) + event.getX(1)) / 2f
                         lastScrollY = (event.getY(0) + event.getY(1)) / 2f
+                        accumulatedVScroll = 0f
+                        accumulatedHScroll = 0f
                     }
                     true
                 }
@@ -189,23 +204,30 @@ class MouseKeyboardActivity : AppCompatActivity() {
                         val currentScrollX = (event.getX(0) + event.getX(1)) / 2f
                         val currentScrollY = (event.getY(0) + event.getY(1)) / 2f
 
-                        val totalHScroll = (currentScrollX - lastScrollX).toInt()
-                        val totalVScroll = (lastScrollY - currentScrollY).toInt() // Swipe down -> scroll down (negative wheel delta)
+                        val dx = currentScrollX - lastScrollX
+                        val dy = currentScrollY - lastScrollY
 
-                        val hScrollSent = totalHScroll.coerceIn(-127, 127)
-                        val vScrollSent = totalVScroll.coerceIn(-127, 127)
+                        lastScrollX = currentScrollX
+                        lastScrollY = currentScrollY
 
-                        if (hScrollSent != 0 || vScrollSent != 0) {
+                        accumulatedHScroll += dx
+                        accumulatedVScroll -= dy // Drag down -> negative wheel (scroll down)
+
+                        val vTicks = (accumulatedVScroll / SCROLL_SENSITIVITY).toInt()
+                        val hTicks = (accumulatedHScroll / SCROLL_SENSITIVITY).toInt()
+
+                        if (vTicks != 0 || hTicks != 0) {
+                            accumulatedVScroll -= vTicks * SCROLL_SENSITIVITY
+                            accumulatedHScroll -= hTicks * SCROLL_SENSITIVITY
+
                             bluetoothService?.sendMouseReport(
                                 dx = 0,
                                 dy = 0,
                                 leftButton = leftButtonDown,
                                 rightButton = rightButtonDown,
-                                vScroll = vScrollSent,
-                                hScroll = hScrollSent
+                                vScroll = vTicks,
+                                hScroll = hTicks
                             )
-                            lastScrollX += hScrollSent
-                            lastScrollY -= vScrollSent
                         }
                     } else if (!isScrolling && event.pointerCount == 1) {
                         val dx = (event.x - lastX).toInt()
@@ -228,18 +250,50 @@ class MouseKeyboardActivity : AppCompatActivity() {
                     true
                 }
                 MotionEvent.ACTION_POINTER_UP -> {
-                    if (event.pointerCount <= 2) {
-                        // Returning to single touch or releasing multi-touch
-                        val activePointerIndex = if (event.actionIndex == 0) 1 else 0
-                        if (activePointerIndex < event.pointerCount) {
-                            lastX = event.getX(activePointerIndex)
-                            lastY = event.getY(activePointerIndex)
-                        }
-                    }
+                    // Releasing a finger during multi-touch keeps isScrolling true until ALL fingers are lifted
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     isScrolling = false
+                    accumulatedVScroll = 0f
+                    accumulatedHScroll = 0f
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun setupScrollStrip() {
+        binding.viewScrollStrip.setOnTouchListener { view, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.performClick()
+                    lastStripY = event.y
+                    accumulatedStripVScroll = 0f
+                    true
+                }
+                MotionEvent.ACTION_MOVE -> {
+                    val dy = lastStripY - event.y // Drag down -> negative wheel (scroll down)
+                    lastStripY = event.y
+                    accumulatedStripVScroll += dy
+
+                    val vTicks = (accumulatedStripVScroll / SCROLL_SENSITIVITY).toInt()
+                    if (vTicks != 0) {
+                        accumulatedStripVScroll -= vTicks * SCROLL_SENSITIVITY
+                        bluetoothService?.sendMouseReport(
+                            dx = 0,
+                            dy = 0,
+                            leftButton = leftButtonDown,
+                            rightButton = rightButtonDown,
+                            vScroll = vTicks,
+                            hScroll = 0
+                        )
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    accumulatedStripVScroll = 0f
                     true
                 }
                 else -> false
