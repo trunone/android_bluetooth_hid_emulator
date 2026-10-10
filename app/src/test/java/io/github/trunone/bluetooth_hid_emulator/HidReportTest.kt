@@ -12,7 +12,7 @@ class HidReportTest {
         val leftButton = true
         val rightButton = false
 
-        val expected = byteArrayOf(1, 10, -5)
+        val expected = byteArrayOf(1, 10, -5, 0, 0)
         val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton)
 
         assertArrayEquals(expected, actual)
@@ -25,8 +25,38 @@ class HidReportTest {
         val leftButton = true
         val rightButton = true
 
-        val expected = byteArrayOf(3, 0, 0)
+        val expected = byteArrayOf(3, 0, 0, 0, 0)
         val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton)
+
+        assertArrayEquals(expected, actual)
+    }
+
+    @Test
+    fun testMouseReportWithScrolling() {
+        val dx = 5
+        val dy = 10
+        val leftButton = false
+        val rightButton = true
+        val vScroll = 12
+        val hScroll = -8
+
+        val expected = byteArrayOf(2, 5, 10, 12, -8)
+        val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton, vScroll, hScroll)
+
+        assertArrayEquals(expected, actual)
+    }
+
+    @Test
+    fun testMouseReportClamping() {
+        val dx = 200
+        val dy = -300
+        val leftButton = true
+        val rightButton = false
+        val vScroll = 150
+        val hScroll = -200
+
+        val expected = byteArrayOf(1, 127, -127, 127, -127)
+        val actual = HidUtils.createMouseReport(dx, dy, leftButton, rightButton, vScroll, hScroll)
 
         assertArrayEquals(expected, actual)
     }

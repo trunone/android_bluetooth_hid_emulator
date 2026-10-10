@@ -160,32 +160,86 @@ class MouseKeyboardActivity : AppCompatActivity() {
 
     private var lastX = 0f
     private var lastY = 0f
+    private var lastScrollX = 0f
+    private var lastScrollY = 0f
+    private var isScrolling = false
 
     private var isClearingText = false
 
     private fun setupTouchpad() {
         binding.viewTouchpad.setOnTouchListener { view, event ->
-            when (event.action) {
+            when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     view.performClick()
                     lastX = event.x
                     lastY = event.y
+                    isScrolling = false
+                    true
+                }
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (event.pointerCount >= 2) {
+                        isScrolling = true
+                        lastScrollX = (event.getX(0) + event.getX(1)) / 2f
+                        lastScrollY = (event.getY(0) + event.getY(1)) / 2f
+                    }
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val dx = (event.x - lastX).toInt()
-                    val dy = (event.y - lastY).toInt()
+                    if (event.pointerCount >= 2) {
+                        val currentScrollX = (event.getX(0) + event.getX(1)) / 2f
+                        val currentScrollY = (event.getY(0) + event.getY(1)) / 2f
 
-                    // Send relative movement, but only as much as HID supports in one report (-127 to 127)
-                    val dxSent = dx.coerceIn(-127, 127)
-                    val dySent = dy.coerceIn(-127, 127)
+                        val totalHScroll = (currentScrollX - lastScrollX).toInt()
+                        val totalVScroll = (lastScrollY - currentScrollY).toInt() // Swipe down -> scroll down (negative wheel delta)
 
-                    if (dxSent != 0 || dySent != 0) {
-                        bluetoothService?.sendMouseReport(dxSent, dySent, leftButtonDown, rightButtonDown)
-                        // Only update lastX/lastY by what was actually sent to keep the remainder for next event
-                        lastX += dxSent
-                        lastY += dySent
+                        val hScrollSent = totalHScroll.coerceIn(-127, 127)
+                        val vScrollSent = totalVScroll.coerceIn(-127, 127)
+
+                        if (hScrollSent != 0 || vScrollSent != 0) {
+                            bluetoothService?.sendMouseReport(
+                                dx = 0,
+                                dy = 0,
+                                leftButton = leftButtonDown,
+                                rightButton = rightButtonDown,
+                                vScroll = vScrollSent,
+                                hScroll = hScrollSent
+                            )
+                            lastScrollX += hScrollSent
+                            lastScrollY -= vScrollSent
+                        }
+                    } else if (!isScrolling && event.pointerCount == 1) {
+                        val dx = (event.x - lastX).toInt()
+                        val dy = (event.y - lastY).toInt()
+
+                        val dxSent = dx.coerceIn(-127, 127)
+                        val dySent = dy.coerceIn(-127, 127)
+
+                        if (dxSent != 0 || dySent != 0) {
+                            bluetoothService?.sendMouseReport(
+                                dx = dxSent,
+                                dy = dySent,
+                                leftButton = leftButtonDown,
+                                rightButton = rightButtonDown
+                            )
+                            lastX += dxSent
+                            lastY += dySent
+                        }
                     }
+                    true
+                }
+                MotionEvent.ACTION_POINTER_UP -> {
+                    if (event.pointerCount <= 2) {
+                        // Returning to single touch or releasing multi-touch
+                        val activePointerIndex = if (event.actionIndex == 0) 1 else 0
+                        if (activePointerIndex < event.pointerCount) {
+                            lastX = event.getX(activePointerIndex)
+                            lastY = event.getY(activePointerIndex)
+                        }
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    isScrolling = false
                     true
                 }
                 else -> false
