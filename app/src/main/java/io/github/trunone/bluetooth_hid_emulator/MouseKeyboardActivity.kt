@@ -44,11 +44,14 @@ class MouseKeyboardActivity : AppCompatActivity() {
         }
     }
 
+    private var scrollSensitivity = 1.0f
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMouseKeyboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        loadSettings()
         updateDeviceText(null)
 
         setupTouchpad()
@@ -56,6 +59,32 @@ class MouseKeyboardActivity : AppCompatActivity() {
         setupKeyboard()
 
         checkPermissions()
+    }
+
+    private fun loadSettings() {
+        val prefs = getSharedPreferences("app_settings", MODE_PRIVATE)
+        scrollSensitivity = prefs.getFloat("scroll_sensitivity", 1.0f)
+    }
+
+    private fun showScrollSensitivityDialog() {
+        val options = arrayOf("0.5x (Slow)", "1.0x (Normal)", "1.5x (Fast)", "2.0x (Very Fast)", "3.0x (Maximum)")
+        val values = floatArrayOf(0.5f, 1.0f, 1.5f, 2.0f, 3.0f)
+        val currentIndex = values.indexOfFirst { kotlin.math.abs(it - scrollSensitivity) < 0.01f }.let {
+            if (it >= 0) it else 1
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.scroll_sensitivity)
+            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                scrollSensitivity = values[which]
+                getSharedPreferences("app_settings", MODE_PRIVATE)
+                    .edit()
+                    .putFloat("scroll_sensitivity", scrollSensitivity)
+                    .apply()
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun startHidService() {
@@ -102,6 +131,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_scroll_sensitivity -> {
+                showScrollSensitivityDialog()
+                true
+            }
             R.id.action_bluetooth_devices -> {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -239,8 +272,11 @@ class MouseKeyboardActivity : AppCompatActivity() {
                     } else if (pointerCount == 2) {
                         // Two fingers movement -> Scroll (Vertical & Horizontal)
                         // Inverting dy for natural scroll direction (swipe up -> scroll up / wheel positive)
-                        val vScrollSent = (-dy).coerceIn(-127, 127)
-                        val hScrollSent = dx.coerceIn(-127, 127)
+                        val scaledVScroll = (-dy * scrollSensitivity).toInt()
+                        val scaledHScroll = (dx * scrollSensitivity).toInt()
+
+                        val vScrollSent = scaledVScroll.coerceIn(-127, 127)
+                        val hScrollSent = scaledHScroll.coerceIn(-127, 127)
 
                         if (vScrollSent != 0 || hScrollSent != 0) {
                             bluetoothService?.sendMouseReport(
@@ -251,8 +287,9 @@ class MouseKeyboardActivity : AppCompatActivity() {
                                 vScroll = vScrollSent,
                                 hScroll = hScrollSent
                             )
-                            lastX += hScrollSent
-                            lastY -= vScrollSent
+                            // Advance last position according to raw unscaled delta sent
+                            lastX += dx
+                            lastY += dy
                         }
                     }
                     true
