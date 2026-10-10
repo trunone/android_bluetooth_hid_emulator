@@ -16,4 +16,26 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="bluetooth_devices">Bluetooth Devices</string>
     <string name="scroll_sensitivity">Scroll Sensitivity</string>
+
+    <!-- Modifiers -->
+    <string name="key_ctrl">Ctrl</string>
+    <string name="key_alt">Alt</string>
+    <string name="key_shift">Shift</string>
+    <string name="key_win">Win</string>
+
+    <!-- Arrows -->
+    <string name="key_up">▲</string>
+    <string name="key_down">▼</string>
+    <string name="key_left">◄</string>
+    <string name="key_right">►</string>
+
+    <!-- Special Keys -->
+    <string name="key_esc">Esc</string>
+    <string name="key_tab">Tab</string>
+    <string name="key_del">Del</string>
+    <string name="key_ins">Ins</string>
+    <string name="key_home">Home</string>
+    <string name="key_end">End</string>
+    <string name="key_pgup">PgUp</string>
+    <string name="key_pgdn">PgDn</string>
 </resources>

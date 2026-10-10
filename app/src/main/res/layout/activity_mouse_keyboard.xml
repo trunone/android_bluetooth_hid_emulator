@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/tv_device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
 
     <View
         android:id="@+id/view_touchpad"
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="16dp">
+        android:paddingTop="8dp">
 
         <Button
             android:id="@+id/btn_left_click"
@@ -48,14 +48,31 @@
             android:text="@string/right_click" />
     </LinearLayout>
 
-    <EditText
-        android:id="@+id/et_keyboard_input"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/keyboard_input"
-        android:inputType="text"
-        android:importantForAutofill="no"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/et_keyboard_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/keyboard_input"
+            android:inputType="text"
+            android:importantForAutofill="no" />
+
+        <ImageButton
+            android:id="@+id/btn_show_extended_keyboard"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/keyboard_input"
+            android:src="@drawable/ic_keyboard" />
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_send_text"
