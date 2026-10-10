@@ -1,19 +1,26 @@
 package io.github.trunone.bluetooth_hid_emulator
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import io.github.trunone.bluetooth_hid_emulator.databinding.ActivityMouseKeyboardBinding
 
 class MouseKeyboardActivity : AppCompatActivity() {
@@ -21,7 +28,7 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMouseKeyboardBinding
     private var bluetoothService: BluetoothHidService? = null
     private var isBound = false
-    private var deviceAddress: String? = null
+    private var isInitialRegistrationStatus = true
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
@@ -42,16 +49,66 @@ class MouseKeyboardActivity : AppCompatActivity() {
         binding = ActivityMouseKeyboardBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        deviceAddress = intent.getStringExtra("device_address")
-        val deviceName = intent.getStringExtra("device_name")
-        binding.tvDeviceName.text = deviceName ?: "Unknown Device"
+        updateDeviceText(null)
 
         setupTouchpad()
         setupButtons()
         setupKeyboard()
 
+        checkPermissions()
+    }
+
+    private fun startHidService() {
+        if (isBound) return
         val intent = Intent(this, BluetoothHidService::class.java)
+        startService(intent)
         bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (permissions.all { it.value }) {
+                startHidService()
+            } else {
+                Toast.makeText(this, "Permissions required", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+    private fun checkPermissions() {
+        val permissions = mutableListOf<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.add(Manifest.permission.BLUETOOTH_CONNECT)
+            permissions.add(Manifest.permission.BLUETOOTH_SCAN)
+            permissions.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+        } else {
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        val missingPermissions = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            requestPermissionLauncher.launch(missingPermissions.toTypedArray())
+        } else {
+            startHidService()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_bluetooth_devices -> {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onDestroy() {
@@ -62,13 +119,40 @@ class MouseKeyboardActivity : AppCompatActivity() {
         }
     }
 
+    @android.annotation.SuppressLint("MissingPermission")
+    private fun updateDeviceText(device: android.bluetooth.BluetoothDevice?) {
+        if (device != null) {
+            val name = try { device.name } catch (e: SecurityException) { null }
+            binding.tvDeviceName.text = name ?: device.address
+        } else {
+            binding.tvDeviceName.text = getString(R.string.status_disconnected)
+        }
+    }
+
     private fun setupServiceListeners() {
-        bluetoothService?.setConnectionListener { connected, _ ->
+        bluetoothService?.setConnectionListener { connected, device ->
             runOnUiThread {
                 if (connected) {
                     binding.tvStatus.text = getString(R.string.status_connected)
+                    updateDeviceText(device)
                 } else {
                     binding.tvStatus.text = getString(R.string.status_disconnected)
+                    updateDeviceText(null)
+                }
+            }
+        }
+
+        bluetoothService?.setRegistrationListener { registered ->
+            runOnUiThread {
+                if (registered) {
+                    Log.d("MouseKeyboardActivity", "HID Service Registered Successfully")
+                    isInitialRegistrationStatus = false
+                } else {
+                    Log.e("MouseKeyboardActivity", "HID Service Registration Failed or Pending")
+                    if (!isInitialRegistrationStatus) {
+                        Toast.makeText(this, "HID Registration Failed. Check if your phone supports HID.", Toast.LENGTH_LONG).show()
+                    }
+                    isInitialRegistrationStatus = false
                 }
             }
         }

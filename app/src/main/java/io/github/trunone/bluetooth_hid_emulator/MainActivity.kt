@@ -48,12 +48,24 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         binding.rvPairedDevices.layoutManager = LinearLayoutManager(this)
 
         checkPermissions()
 
         binding.btnMakeDiscoverable.setOnClickListener {
             makeDiscoverable()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -163,12 +175,7 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Connecting to $deviceName...", Toast.LENGTH_SHORT).show()
 
             bluetoothService?.connect(device)
-            
-            val intent = Intent(this, MouseKeyboardActivity::class.java).apply {
-                putExtra("device_address", device.address)
-                putExtra("device_name", deviceName)
-            }
-            startActivity(intent)
+            finish()
         } else {
              Toast.makeText(this, "Service not ready", Toast.LENGTH_SHORT).show()
         }
