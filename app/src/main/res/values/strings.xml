@@ -15,4 +15,5 @@
     <string name="send_text">Send Text</string>
     <string name="permission_denied">Permission Denied</string>
     <string name="bluetooth_devices">Bluetooth Devices</string>
+    <string name="scroll_sensitivity">Scroll Sensitivity</string>
 </resources>
