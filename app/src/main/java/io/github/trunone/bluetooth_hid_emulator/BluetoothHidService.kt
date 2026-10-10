@@ -64,11 +64,17 @@ class BluetoothHidService : Service() {
 
     private val COMPOSITE_REPORT_DESC = byteArrayOf(
         // Mouse (Report ID 1)
-        // Mouse (Report ID 1)
         0x05, 0x01, 0x09, 0x02, 0xA1.toByte(), 0x01, 0x85.toByte(), 0x01, 0x09, 0x01, 0xA1.toByte(), 0x00,
+        // Buttons (3 buttons, 1 bit each)
         0x05, 0x09, 0x19, 0x01, 0x29, 0x03, 0x15, 0x00, 0x25, 0x01, 0x95.toByte(), 0x03, 0x75, 0x01, 0x81.toByte(), 0x02,
+        // Constants (5 bits padding)
         0x95.toByte(), 0x01, 0x75, 0x05, 0x81.toByte(), 0x03,
+        // X, Y (1 byte each)
         0x05, 0x01, 0x09, 0x30, 0x09, 0x31, 0x15, 0x81.toByte(), 0x25, 0x7F, 0x75, 0x08, 0x95.toByte(), 0x02, 0x81.toByte(), 0x06,
+        // Vertical Wheel (1 byte)
+        0x09, 0x38, 0x15, 0x81.toByte(), 0x25, 0x7F, 0x75, 0x08, 0x95.toByte(), 0x01, 0x81.toByte(), 0x06,
+        // Horizontal Pan (Usage Page: Consumer, AC Pan 0x0238) (1 byte)
+        0x05, 0x0C, 0x0A, 0x38, 0x02, 0x15, 0x81.toByte(), 0x25, 0x7F, 0x75, 0x08, 0x95.toByte(), 0x01, 0x81.toByte(), 0x06,
         0xC0.toByte(), 0xC0.toByte(),
 
         // Keyboard (Report ID 2)
@@ -211,10 +217,17 @@ class BluetoothHidService : Service() {
     }
 
     @SuppressLint("MissingPermission")
-    fun sendMouseReport(dx: Int, dy: Int, leftButton: Boolean, rightButton: Boolean) {
+    fun sendMouseReport(
+        dx: Int,
+        dy: Int,
+        leftButton: Boolean,
+        rightButton: Boolean,
+        vScroll: Int = 0,
+        hScroll: Int = 0
+    ) {
         if (bluetoothHidDevice == null || hostDevice == null) return
 
-        val report = HidUtils.createMouseReport(dx, dy, leftButton, rightButton)
+        val report = HidUtils.createMouseReport(dx, dy, leftButton, rightButton, vScroll, hScroll)
 
         try {
             bluetoothHidDevice?.sendReport(hostDevice, 1, report) // Report ID 1

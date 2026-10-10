@@ -160,32 +160,106 @@ class MouseKeyboardActivity : AppCompatActivity() {
 
     private var lastX = 0f
     private var lastY = 0f
+    private var activePointerCount = 0
 
     private var isClearingText = false
 
     private fun setupTouchpad() {
         binding.viewTouchpad.setOnTouchListener { view, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    view.performClick()
-                    lastX = event.x
-                    lastY = event.y
+            val pointerCount = event.pointerCount
+
+            // Calculate current center point of touches
+            var currentX = 0f
+            var currentY = 0f
+            for (i in 0 until pointerCount) {
+                currentX += event.getX(i)
+                currentY += event.getY(i)
+            }
+            currentX /= pointerCount
+            currentY /= pointerCount
+
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                        view.performClick()
+                    }
+                    lastX = currentX
+                    lastY = currentY
+                    activePointerCount = pointerCount
+                    true
+                }
+                MotionEvent.ACTION_POINTER_UP -> {
+                    // One finger lifted or added, reset touch origin to prevent jumping
+                    activePointerCount = pointerCount - 1
+                    // Compute new average of remaining pointers
+                    var remX = 0f
+                    var remY = 0f
+                    var count = 0
+                    val upIndex = event.actionIndex
+                    for (i in 0 until pointerCount) {
+                        if (i != upIndex) {
+                            remX += event.getX(i)
+                            remY += event.getY(i)
+                            count++
+                        }
+                    }
+                    if (count > 0) {
+                        lastX = remX / count
+                        lastY = remY / count
+                    }
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    val dx = (event.x - lastX).toInt()
-                    val dy = (event.y - lastY).toInt()
-
-                    // Send relative movement, but only as much as HID supports in one report (-127 to 127)
-                    val dxSent = dx.coerceIn(-127, 127)
-                    val dySent = dy.coerceIn(-127, 127)
-
-                    if (dxSent != 0 || dySent != 0) {
-                        bluetoothService?.sendMouseReport(dxSent, dySent, leftButtonDown, rightButtonDown)
-                        // Only update lastX/lastY by what was actually sent to keep the remainder for next event
-                        lastX += dxSent
-                        lastY += dySent
+                    if (pointerCount != activePointerCount) {
+                        lastX = currentX
+                        lastY = currentY
+                        activePointerCount = pointerCount
+                        return@setOnTouchListener true
                     }
+
+                    val dx = (currentX - lastX).toInt()
+                    val dy = (currentY - lastY).toInt()
+
+                    if (pointerCount == 1) {
+                        // Single finger movement -> Mouse cursor movement
+                        val dxSent = dx.coerceIn(-127, 127)
+                        val dySent = dy.coerceIn(-127, 127)
+
+                        if (dxSent != 0 || dySent != 0) {
+                            bluetoothService?.sendMouseReport(
+                                dx = dxSent,
+                                dy = dySent,
+                                leftButton = leftButtonDown,
+                                rightButton = rightButtonDown
+                            )
+                            lastX += dxSent
+                            lastY += dySent
+                        }
+                    } else if (pointerCount == 2) {
+                        // Two fingers movement -> Scroll (Vertical & Horizontal)
+                        // Inverting dy for natural scroll direction (swipe up -> scroll up / wheel positive)
+                        val vScrollSent = (-dy).coerceIn(-127, 127)
+                        val hScrollSent = dx.coerceIn(-127, 127)
+
+                        if (vScrollSent != 0 || hScrollSent != 0) {
+                            bluetoothService?.sendMouseReport(
+                                dx = 0,
+                                dy = 0,
+                                leftButton = leftButtonDown,
+                                rightButton = rightButtonDown,
+                                vScroll = vScrollSent,
+                                hScroll = hScrollSent
+                            )
+                            lastX += hScrollSent
+                            lastY -= vScrollSent
+                        }
+                    }
+                    true
+                }
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_CANCEL -> {
+                    activePointerCount = 0
                     true
                 }
                 else -> false
