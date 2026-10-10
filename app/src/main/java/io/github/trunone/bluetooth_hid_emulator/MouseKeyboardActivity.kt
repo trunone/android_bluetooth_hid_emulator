@@ -12,11 +12,11 @@ import android.os.IBinder
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.view.KeyEvent
 import android.view.MotionEvent
-import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -57,6 +57,7 @@ class MouseKeyboardActivity : AppCompatActivity() {
         setupTouchpad()
         setupButtons()
         setupKeyboard()
+        setupSpecialKeyButtons()
 
         checkPermissions()
     }
@@ -346,11 +347,9 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private fun setupKeyboard() {
         binding.etKeyboardInput.setOnKeyListener { _, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN) {
-                if (keyCode == KeyEvent.KEYCODE_DEL) {
-                    sendKey('\u0008')
-                    return@setOnKeyListener true
-                } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    sendKey('\n')
+                val hidCode = HidUtils.getHidCodeFromAndroidKeyCode(keyCode)
+                if (hidCode != HidUtils.KEY_NONE) {
+                    sendHidKey(hidCode)
                     return@setOnKeyListener true
                 }
             }
@@ -369,7 +368,7 @@ class MouseKeyboardActivity : AppCompatActivity() {
                         sendKey(s[start + i])
                     }
                 } else if (count == 0 && before > 0) {
-                    sendKey('\u0008')
+                    sendHidKey(HidUtils.KEY_BACKSPACE)
                 }
             }
 
@@ -383,64 +382,72 @@ class MouseKeyboardActivity : AppCompatActivity() {
         })
     }
 
-    private fun sendKey(char: Char) {
-        // Map char to HID keycode. This is complex.
-        // For simplicity, handle lowercase a-z and 0-9.
+    private fun setupSpecialKeyButtons() {
+        val keyMap = mapOf(
+            binding.btnF1 to HidUtils.KEY_F1,
+            binding.btnF2 to HidUtils.KEY_F2,
+            binding.btnF3 to HidUtils.KEY_F3,
+            binding.btnF4 to HidUtils.KEY_F4,
+            binding.btnF5 to HidUtils.KEY_F5,
+            binding.btnF6 to HidUtils.KEY_F6,
+            binding.btnF7 to HidUtils.KEY_F7,
+            binding.btnF8 to HidUtils.KEY_F8,
+            binding.btnF9 to HidUtils.KEY_F9,
+            binding.btnF10 to HidUtils.KEY_F10,
+            binding.btnF11 to HidUtils.KEY_F11,
+            binding.btnF12 to HidUtils.KEY_F12,
+            binding.btnEsc to HidUtils.KEY_ESC,
+            binding.btnTab to HidUtils.KEY_TAB,
+            binding.btnDel to HidUtils.KEY_DELETE,
+            binding.btnIns to HidUtils.KEY_INSERT,
+            binding.btnHome to HidUtils.KEY_HOME,
+            binding.btnEnd to HidUtils.KEY_END,
+            binding.btnPgup to HidUtils.KEY_PAGE_UP,
+            binding.btnPgdn to HidUtils.KEY_PAGE_DOWN,
+            binding.btnArrowLeft to HidUtils.KEY_LEFT,
+            binding.btnArrowUp to HidUtils.KEY_UP,
+            binding.btnArrowDown to HidUtils.KEY_DOWN,
+            binding.btnArrowRight to HidUtils.KEY_RIGHT
+        )
 
-        var keycode = 0
-        var modifier = 0
-
-        when (char) {
-            in 'a'..'z' -> keycode = 0x04 + (char - 'a')
-            in 'A'..'Z' -> {
-                keycode = 0x04 + (char - 'A')
-                modifier = 0x02 // Left Shift
+        for ((button, hidKey) in keyMap) {
+            button.setOnClickListener {
+                sendHidKey(hidKey)
             }
-            in '1'..'9' -> keycode = 0x1E + (char - '1')
-            '0' -> keycode = 0x27
-            ' ' -> keycode = 0x2C
-            '\n' -> keycode = 0x28
-            '\u0008' -> keycode = 0x2A // Backspace
-            '\t' -> keycode = 0x2B // Tab
-            '`' -> keycode = 0x35
-            '~' -> { keycode = 0x35; modifier = 0x02 }
-            '!' -> { keycode = 0x1E; modifier = 0x02 }
-            '@' -> { keycode = 0x1F; modifier = 0x02 }
-            '#' -> { keycode = 0x20; modifier = 0x02 }
-            '$' -> { keycode = 0x21; modifier = 0x02 }
-            '%' -> { keycode = 0x22; modifier = 0x02 }
-            '^' -> { keycode = 0x23; modifier = 0x02 }
-            '&' -> { keycode = 0x24; modifier = 0x02 }
-            '*' -> { keycode = 0x25; modifier = 0x02 }
-            '(' -> { keycode = 0x26; modifier = 0x02 }
-            ')' -> { keycode = 0x27; modifier = 0x02 }
-            '-' -> keycode = 0x2D
-            '_' -> { keycode = 0x2D; modifier = 0x02 }
-            '=' -> keycode = 0x2E
-            '+' -> { keycode = 0x2E; modifier = 0x02 }
-            '[' -> keycode = 0x2F
-            '{' -> { keycode = 0x2F; modifier = 0x02 }
-            ']' -> keycode = 0x30
-            '}' -> { keycode = 0x30; modifier = 0x02 }
-            '\\' -> keycode = 0x31
-            '|' -> { keycode = 0x31; modifier = 0x02 }
-            ';' -> keycode = 0x33
-            ':' -> { keycode = 0x33; modifier = 0x02 }
-            '\'' -> keycode = 0x34
-            '"' -> { keycode = 0x34; modifier = 0x02 }
-            ',' -> keycode = 0x36
-            '<' -> { keycode = 0x36; modifier = 0x02 }
-            '.' -> keycode = 0x37
-            '>' -> { keycode = 0x37; modifier = 0x02 }
-            '/' -> keycode = 0x38
-            '?' -> { keycode = 0x38; modifier = 0x02 }
         }
+    }
 
-        if (keycode != 0) {
-            // Key Down
-            bluetoothService?.sendKeyboardReport(modifier, keycode)
-            // Key Up (immediately)
-            bluetoothService?.sendKeyboardReport(0, 0)
+    private fun getCurrentModifierFlags(): Int {
+        var modifier = 0
+        if (binding.btnModCtrl.isChecked) modifier = modifier or HidUtils.MOD_LEFT_CTRL
+        if (binding.btnModAlt.isChecked) modifier = modifier or HidUtils.MOD_LEFT_ALT
+        if (binding.btnModShift.isChecked) modifier = modifier or HidUtils.MOD_LEFT_SHIFT
+        if (binding.btnModWin.isChecked) modifier = modifier or HidUtils.MOD_LEFT_GUI
+        return modifier
+    }
+
+    private fun sendHidKey(hidKeycode: Int, extraModifier: Int = 0) {
+        val modifier = getCurrentModifierFlags() or extraModifier
+        bluetoothService?.sendKeyboardReport(modifier, hidKeycode)
+        bluetoothService?.sendKeyboardReport(0, 0)
+    }
+
+    private fun sendKey(char: Char) {
+        val result = HidUtils.getHidKeyForChar(char)
+        if (result != null) {
+            val (charModifier, keycode) = result
+            sendHidKey(keycode, charModifier)
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (event.action == KeyEvent.ACTION_DOWN) {
+            val hidCode = HidUtils.getHidCodeFromAndroidKeyCode(event.keyCode)
+            if (hidCode != HidUtils.KEY_NONE && !binding.etKeyboardInput.hasFocus()) {
+                sendHidKey(hidCode)
+                return true
+            }
+        }
+        return super.dispatchKeyEvent(event)
     }
 }

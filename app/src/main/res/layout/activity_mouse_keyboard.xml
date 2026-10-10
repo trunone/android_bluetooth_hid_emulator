@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/tv_device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
 
     <View
         android:id="@+id/view_touchpad"
@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingTop="16dp">
+        android:paddingTop="8dp">
 
         <Button
             android:id="@+id/btn_left_click"
@@ -48,6 +48,104 @@
             android:text="@string/right_click" />
     </LinearLayout>
 
+    <!-- Modifier Buttons Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="4dp">
+
+        <ToggleButton
+            android:id="@+id/btn_mod_ctrl"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/key_ctrl"
+            android:textOn="@string/key_ctrl"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/btn_mod_alt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/key_alt"
+            android:textOn="@string/key_alt"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/btn_mod_shift"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/key_shift"
+            android:textOn="@string/key_shift"
+            android:textSize="12sp" />
+
+        <ToggleButton
+            android:id="@+id/btn_mod_win"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="@string/key_win"
+            android:textOn="@string/key_win"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <!-- Function Keys Scrollable Bar -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/btn_f1" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F1" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f2" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F2" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f3" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F3" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f4" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F4" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f5" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F5" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f6" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F6" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f7" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F7" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f8" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F8" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f9" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F9" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f10" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F10" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f11" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F11" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_f12" android:layout_width="50dp" android:layout_height="wrap_content" android:text="F12" android:textSize="11sp" android:padding="0dp"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Special Keys & Arrows Bar -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/btn_esc" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_esc" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_tab" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_tab" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_del" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_del" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_ins" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_ins" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_home" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_home" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_end" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_end" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_pgup" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_pgup" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_pgdn" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_pgdn" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_arrow_left" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_left" android:textSize="14sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_arrow_up" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_up" android:textSize="14sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_arrow_down" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_down" android:textSize="14sp" android:padding="0dp"/>
+            <Button android:id="@+id/btn_arrow_right" android:layout_width="54dp" android:layout_height="wrap_content" android:text="@string/key_right" android:textSize="14sp" android:padding="0dp"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
     <EditText
         android:id="@+id/et_keyboard_input"
         android:layout_width="match_parent"
@@ -55,7 +153,7 @@
         android:hint="@string/keyboard_input"
         android:inputType="text"
         android:importantForAutofill="no"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/btn_send_text"
