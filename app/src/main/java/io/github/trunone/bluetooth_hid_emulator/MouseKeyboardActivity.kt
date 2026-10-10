@@ -52,7 +52,6 @@ class MouseKeyboardActivity : AppCompatActivity() {
         updateDeviceText(null)
 
         setupTouchpad()
-        setupScrollStrip()
         setupButtons()
         setupKeyboard()
 
@@ -168,13 +167,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
     private var accumulatedVScroll = 0f
     private var accumulatedHScroll = 0f
 
-    private var lastStripY = 0f
-    private var accumulatedStripVScroll = 0f
-
     private var isClearingText = false
 
     companion object {
-        private const val SCROLL_SENSITIVITY = 15f // pixels per scroll wheel notch
+        private const val SCROLL_SENSITIVITY = 3f // pixels per scroll wheel notch
     }
 
     private fun setupTouchpad() {
@@ -257,43 +253,6 @@ class MouseKeyboardActivity : AppCompatActivity() {
                     isScrolling = false
                     accumulatedVScroll = 0f
                     accumulatedHScroll = 0f
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
-    private fun setupScrollStrip() {
-        binding.viewScrollStrip.setOnTouchListener { view, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    view.performClick()
-                    lastStripY = event.y
-                    accumulatedStripVScroll = 0f
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dy = lastStripY - event.y // Drag down -> negative wheel (scroll down)
-                    lastStripY = event.y
-                    accumulatedStripVScroll += dy
-
-                    val vTicks = (accumulatedStripVScroll / SCROLL_SENSITIVITY).toInt()
-                    if (vTicks != 0) {
-                        accumulatedStripVScroll -= vTicks * SCROLL_SENSITIVITY
-                        bluetoothService?.sendMouseReport(
-                            dx = 0,
-                            dy = 0,
-                            leftButton = leftButtonDown,
-                            rightButton = rightButtonDown,
-                            vScroll = vTicks,
-                            hScroll = 0
-                        )
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    accumulatedStripVScroll = 0f
                     true
                 }
                 else -> false
