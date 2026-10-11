@@ -17,11 +17,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.Button
+import android.widget.ToggleButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import io.github.trunone.bluetooth_hid_emulator.databinding.ActivityMouseKeyboardBinding
+import io.github.trunone.bluetooth_hid_emulator.databinding.DialogExtendedKeyboardBinding
 
 class MouseKeyboardActivity : AppCompatActivity() {
 
@@ -57,7 +60,10 @@ class MouseKeyboardActivity : AppCompatActivity() {
         setupTouchpad()
         setupButtons()
         setupKeyboard()
-        setupSpecialKeyButtons()
+
+        binding.btnShowExtendedKeyboard.setOnClickListener {
+            showExtendedKeyboardDialog()
+        }
 
         checkPermissions()
     }
@@ -74,7 +80,7 @@ class MouseKeyboardActivity : AppCompatActivity() {
             if (it >= 0) it else 1
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setTitle(R.string.scroll_sensitivity)
             .setSingleChoiceItems(options, currentIndex) { dialog, which ->
                 scrollSensitivity = values[which]
@@ -382,52 +388,66 @@ class MouseKeyboardActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupSpecialKeyButtons() {
+    private fun showExtendedKeyboardDialog() {
+        val dialogBinding = DialogExtendedKeyboardBinding.inflate(layoutInflater)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogBinding.root)
+            .setPositiveButton(android.R.string.ok, null)
+            .create()
+
+        fun getModifierFlags(): Int {
+            var modifier = 0
+            if (dialogBinding.dialogBtnModCtrl.isChecked) modifier = modifier or HidUtils.MOD_LEFT_CTRL
+            if (dialogBinding.dialogBtnModAlt.isChecked) modifier = modifier or HidUtils.MOD_LEFT_ALT
+            if (dialogBinding.dialogBtnModShift.isChecked) modifier = modifier or HidUtils.MOD_LEFT_SHIFT
+            if (dialogBinding.dialogBtnModWin.isChecked) modifier = modifier or HidUtils.MOD_LEFT_GUI
+            return modifier
+        }
+
+        fun sendDialogHidKey(hidKeycode: Int) {
+            val modifier = getModifierFlags()
+            bluetoothService?.sendKeyboardReport(modifier, hidKeycode)
+            bluetoothService?.sendKeyboardReport(0, 0)
+        }
+
         val keyMap = mapOf(
-            binding.btnF1 to HidUtils.KEY_F1,
-            binding.btnF2 to HidUtils.KEY_F2,
-            binding.btnF3 to HidUtils.KEY_F3,
-            binding.btnF4 to HidUtils.KEY_F4,
-            binding.btnF5 to HidUtils.KEY_F5,
-            binding.btnF6 to HidUtils.KEY_F6,
-            binding.btnF7 to HidUtils.KEY_F7,
-            binding.btnF8 to HidUtils.KEY_F8,
-            binding.btnF9 to HidUtils.KEY_F9,
-            binding.btnF10 to HidUtils.KEY_F10,
-            binding.btnF11 to HidUtils.KEY_F11,
-            binding.btnF12 to HidUtils.KEY_F12,
-            binding.btnEsc to HidUtils.KEY_ESC,
-            binding.btnTab to HidUtils.KEY_TAB,
-            binding.btnDel to HidUtils.KEY_DELETE,
-            binding.btnIns to HidUtils.KEY_INSERT,
-            binding.btnHome to HidUtils.KEY_HOME,
-            binding.btnEnd to HidUtils.KEY_END,
-            binding.btnPgup to HidUtils.KEY_PAGE_UP,
-            binding.btnPgdn to HidUtils.KEY_PAGE_DOWN,
-            binding.btnArrowLeft to HidUtils.KEY_LEFT,
-            binding.btnArrowUp to HidUtils.KEY_UP,
-            binding.btnArrowDown to HidUtils.KEY_DOWN,
-            binding.btnArrowRight to HidUtils.KEY_RIGHT
+            dialogBinding.dialogBtnF1 to HidUtils.KEY_F1,
+            dialogBinding.dialogBtnF2 to HidUtils.KEY_F2,
+            dialogBinding.dialogBtnF3 to HidUtils.KEY_F3,
+            dialogBinding.dialogBtnF4 to HidUtils.KEY_F4,
+            dialogBinding.dialogBtnF5 to HidUtils.KEY_F5,
+            dialogBinding.dialogBtnF6 to HidUtils.KEY_F6,
+            dialogBinding.dialogBtnF7 to HidUtils.KEY_F7,
+            dialogBinding.dialogBtnF8 to HidUtils.KEY_F8,
+            dialogBinding.dialogBtnF9 to HidUtils.KEY_F9,
+            dialogBinding.dialogBtnF10 to HidUtils.KEY_F10,
+            dialogBinding.dialogBtnF11 to HidUtils.KEY_F11,
+            dialogBinding.dialogBtnF12 to HidUtils.KEY_F12,
+            dialogBinding.dialogBtnEsc to HidUtils.KEY_ESC,
+            dialogBinding.dialogBtnTab to HidUtils.KEY_TAB,
+            dialogBinding.dialogBtnDel to HidUtils.KEY_DELETE,
+            dialogBinding.dialogBtnIns to HidUtils.KEY_INSERT,
+            dialogBinding.dialogBtnHome to HidUtils.KEY_HOME,
+            dialogBinding.dialogBtnEnd to HidUtils.KEY_END,
+            dialogBinding.dialogBtnPgup to HidUtils.KEY_PAGE_UP,
+            dialogBinding.dialogBtnPgdn to HidUtils.KEY_PAGE_DOWN,
+            dialogBinding.dialogBtnArrowLeft to HidUtils.KEY_LEFT,
+            dialogBinding.dialogBtnArrowUp to HidUtils.KEY_UP,
+            dialogBinding.dialogBtnArrowDown to HidUtils.KEY_DOWN,
+            dialogBinding.dialogBtnArrowRight to HidUtils.KEY_RIGHT
         )
 
         for ((button, hidKey) in keyMap) {
             button.setOnClickListener {
-                sendHidKey(hidKey)
+                sendDialogHidKey(hidKey)
             }
         }
+
+        dialog.show()
     }
 
-    private fun getCurrentModifierFlags(): Int {
-        var modifier = 0
-        if (binding.btnModCtrl.isChecked) modifier = modifier or HidUtils.MOD_LEFT_CTRL
-        if (binding.btnModAlt.isChecked) modifier = modifier or HidUtils.MOD_LEFT_ALT
-        if (binding.btnModShift.isChecked) modifier = modifier or HidUtils.MOD_LEFT_SHIFT
-        if (binding.btnModWin.isChecked) modifier = modifier or HidUtils.MOD_LEFT_GUI
-        return modifier
-    }
-
-    private fun sendHidKey(hidKeycode: Int, extraModifier: Int = 0) {
-        val modifier = getCurrentModifierFlags() or extraModifier
+    private fun sendHidKey(hidKeycode: Int, modifier: Int = 0) {
         bluetoothService?.sendKeyboardReport(modifier, hidKeycode)
         bluetoothService?.sendKeyboardReport(0, 0)
     }
