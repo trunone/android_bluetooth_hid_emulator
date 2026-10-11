@@ -23,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="6dp">
+            android:layout_marginBottom="8dp">
 
             <ToggleButton
                 android:id="@+id/dialog_btn_mod_ctrl"
@@ -62,7 +62,7 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <!-- Function Keys Row (F1 - F12) -->
+        <!-- Function Keys Section (2 rows of 6) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,33 +71,35 @@
             android:textStyle="bold"
             android:layout_marginTop="4dp" />
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="6dp">
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <Button android:id="@+id/dialog_btn_f1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F1" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F2" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F3" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F4" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f5" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F5" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f6" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F6" android:textSize="11sp" android:padding="0dp"/>
+        </LinearLayout>
 
-                <Button android:id="@+id/dialog_btn_f1" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F1" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f2" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F2" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f3" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F3" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f4" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F4" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f5" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F5" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f6" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F6" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f7" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F7" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f8" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F8" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f9" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F9" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f10" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F10" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f11" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F11" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_f12" android:layout_width="48dp" android:layout_height="wrap_content" android:text="F12" android:textSize="11sp" android:padding="0dp"/>
-            </LinearLayout>
-        </HorizontalScrollView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
 
-        <!-- Special Navigation Keys -->
+            <Button android:id="@+id/dialog_btn_f7" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F7" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f8" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F8" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f9" android:layout_width="0dp" android:layout_height="wrap_content" android:text="F9" android:layout_weight="1" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f10" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F10" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f11" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F11" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_f12" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="F12" android:textSize="11sp" android:padding="0dp"/>
+        </LinearLayout>
+
+        <!-- Special Navigation Keys (2 rows of 4) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -106,27 +108,29 @@
             android:textStyle="bold"
             android:layout_marginTop="4dp" />
 
-        <HorizontalScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none"
-            android:layout_marginBottom="6dp">
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+            <Button android:id="@+id/dialog_btn_esc" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_esc" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_tab" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_tab" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_ins" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_ins" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_del" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_del" android:textSize="11sp" android:padding="0dp"/>
+        </LinearLayout>
 
-                <Button android:id="@+id/dialog_btn_esc" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_esc" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_tab" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_tab" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_del" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_del" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_ins" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_ins" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_home" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_home" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_end" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_end" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_pgup" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_pgup" android:textSize="11sp" android:padding="0dp"/>
-                <Button android:id="@+id/dialog_btn_pgdn" android:layout_width="52dp" android:layout_height="wrap_content" android:text="@string/key_pgdn" android:textSize="11sp" android:padding="0dp"/>
-            </LinearLayout>
-        </HorizontalScrollView>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Button android:id="@+id/dialog_btn_home" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_home" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_end" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_end" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_pgup" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_pgup" android:textSize="11sp" android:padding="0dp"/>
+            <Button android:id="@+id/dialog_btn_pgdn" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/key_pgdn" android:textSize="11sp" android:padding="0dp"/>
+        </LinearLayout>
 
         <!-- Arrow Keys Pad -->
         <TextView
